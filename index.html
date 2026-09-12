@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krishi Mitra — Fertilizer Calculator for Nepal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1E2A1B;
+    --paper:#F3EEDC;
+    --paper-raised:#FBF8EE;
+    --field:#2F5233;
+    --field-dark:#213B26;
+    --gold:#C8912B;
+    --gold-dark:#A5741C;
+    --soil:#7C5A3A;
+    --line:#DBD2B4;
+    --danger:#A6402F;
+    --shadow: 0 1px 0 rgba(30,42,27,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold); color:#fff;}
+
+  a{color:var(--field-dark);}
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  /* ---------- Header ---------- */
+  header.top{
+    border-bottom:1px solid var(--line);
+    padding:28px 0 26px;
+    animation: riseIn 700ms ease-out both;
+  }
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .top-inner{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+  }
+  .brand-mark{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:1.7rem;
+    letter-spacing:-0.01em;
+    color:var(--field-dark);
+  }
+  .brand-mark span{color:var(--gold-dark);}
+  .tagline{
+    font-size:0.98rem;
+    color:#4C5A46;
+    max-width:420px;
+  }
+
+  /* ---------- Hero / intro ---------- */
+  .intro{
+    padding:44px 0 8px;
+  }
+  .intro h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(1.9rem, 3.4vw, 2.7rem);
+    line-height:1.15;
+    margin:0 0 14px;
+    max-width:16ch;
+    color:var(--field-dark);
+  }
+  .intro p{
+    max-width:62ch;
+    font-size:1.05rem;
+    color:#40483B;
+    margin:0;
+  }
+
+  /* ---------- Layout ---------- */
+  .stage{
+    display:grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap:28px;
+    padding:36px 0 60px;
+    align-items:start;
+  }
+  @media (max-width:920px){
+    .stage{grid-template-columns:1fr; padding-top:26px;}
+  }
+
+  .panel{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:4px;
+  }
+
+  .form-panel{padding:30px 30px 8px;}
+
+  .field-group{
+    margin-bottom:26px;
+    padding-bottom:26px;
+    border-bottom:1px solid var(--line);
+  }
+  .field-group:last-of-type{border-bottom:none;}
+
+  .field-label{
+    display:block;
+    font-weight:600;
+    font-size:0.98rem;
+    margin-bottom:10px;
+    color:var(--field-dark);
+  }
+  .field-hint{
+    font-size:0.85rem;
+    color:#6B6B57;
+    margin-top:6px;
+  }
+
+  select, input[type="number"], input[type="text"]{
+    width:100%;
+    font-family:inherit;
+    font-size:1rem;
+    padding:11px 12px;
+    border:1px solid #C7BC9A;
+    border-radius:3px;
+    background:#fff;
+    color:var(--ink);
+  }
+  select:focus, input:focus{
+    outline:2px solid var(--gold);
+    outline-offset:1px;
+    border-color:var(--gold-dark);
+  }
+
+  .row2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width:520px){
+    .row2{grid-template-columns:1fr;}
+  }
+
+  .npk-inline{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:12px;
+    margin-top:12px;
+  }
+  .npk-inline label{
+    display:block;
+    font-size:0.8rem;
+    color:#5B5B47;
+    margin-bottom:5px;
+  }
+  .npk-inline .unit-suffix{
+    position:relative;
+  }
+
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:12px;
+    font-size:0.92rem;
+    color:#40483B;
+  }
+  .toggle-row input{width:auto;}
+
+  fieldset{
+    border:none;
+    padding:0;
+    margin:0;
+  }
+  legend{
+    font-weight:600;
+    font-size:0.98rem;
+    margin-bottom:10px;
+    color:var(--field-dark);
+    padding:0;
+  }
+  .source-options{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-bottom:4px;
+  }
+  .source-options label{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:0.95rem;
+    cursor:pointer;
+  }
+  .source-options input{width:auto;}
+
+  .crop-note{
+    margin-top:12px;
+    font-size:0.88rem;
+    color:#5B5B47;
+    background:#EFE9D4;
+    border-left:3px solid var(--gold);
+    padding:9px 12px;
+    border-radius:2px;
+  }
+
+  .calc-btn{
+    display:block;
+    width:100%;
+    margin:6px 0 24px;
+    padding:14px 16px;
+    background:var(--field-dark);
+    color:#F6F3E8;
+    border:none;
+    border-radius:3px;
+    font-family:inherit;
+    font-size:1.02rem;
+    font-weight:600;
+    cursor:pointer;
+    transition: background 150ms ease, transform 100ms ease;
+  }
+  .calc-btn:hover{background:var(--field);}
+  .calc-btn:active{transform:scale(0.99);}
+  .calc-btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  .stale-flag{
+    display:inline-block;
+    margin-left:8px;
+    font-size:0.76rem;
+    font-weight:600;
+    color:var(--gold-dark);
+    background:#F2E6C8;
+    padding:2px 7px;
+    border-radius:10px;
+    vertical-align:middle;
+  }
+
+  .placeholder-msg{
+    font-size:0.92rem;
+    color:#6B6B57;
+    padding:18px 0;
+  }
+
+  /* ---------- Results panel ---------- */
+  .results-panel{
+    position:sticky;
+    top:20px;
+    padding:30px;
+  }
+  .results-heading{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.3rem;
+    color:var(--field-dark);
+    margin:0 0 4px;
+  }
+  .results-sub{
+    font-size:0.88rem;
+    color:#6B6B57;
+    margin:0 0 22px;
+  }
+
+  .stage-card{
+    padding:16px 0;
+    border-top:1px solid var(--line);
+    transition: background 400ms ease;
+  }
+  .stage-card:first-of-type{border-top:none;}
+  .stage-card.flash{background:#EFE2C0;}
+  .stage-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.02rem;
+    color:var(--field-dark);
+    margin:0 0 10px;
+  }
+  .stage-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:6px 0;
+    font-size:0.95rem;
+  }
+  .stage-item .amt{
+    text-align:right;
+    font-variant-numeric: tabular-nums;
+  }
+  .stage-item .amt .big{
+    font-weight:600;
+    color:var(--field-dark);
+  }
+  .stage-item .amt .detail{
+    display:block;
+    font-size:0.76rem;
+    color:#6B6B57;
+    font-weight:400;
+  }
+
+  .total-line{
+    margin-top:10px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    font-size:0.9rem;
+    color:#40483B;
+  }
+
+  .warn-box{
+    margin-top:18px;
+    font-size:0.85rem;
+    color:var(--danger);
+    background:#F5E4DE;
+    border-left:3px solid var(--danger);
+    padding:9px 12px;
+    border-radius:2px;
+  }
+
+  .apply-tip{
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    font-size:0.86rem;
+    color:#40483B;
+  }
+  .apply-tip strong{color:var(--field-dark);}
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:26px 0 40px;
+    font-size:0.82rem;
+    color:#6B6B57;
+  }
+  footer p{max-width:78ch; margin:0 0 8px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand">
+      <div class="brand-mark">Krishi<span>Mitra</span></div>
+      <div class="tagline">Fertilizer calculator for crops and vegetables grown in Nepal</div>
+    </div>
+  </div>
+</header>
+
+<section class="intro">
+  <div class="wrap">
+    <h1>Work out exactly how much urea, DAP and potash your field needs</h1>
+    <p>Pick a crop, enter your field's area in whatever unit you measure it in — hectare, bigha, kattha, ropani or aana — and get the standard fertilizer amounts for that area, split into the fertilizer bags you'd actually buy.</p>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="stage">
+
+    <!-- FORM -->
+    <div class="panel form-panel">
+
+      <div class="field-group">
+        <label class="field-label" for="crop">Crop</label>
+        <select id="crop"></select>
+        <p class="crop-note" id="cropNote"></p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="areaValue">Field area</label>
+        <div class="row2">
+          <input type="number" id="areaValue" min="0" step="any" value="1" inputmode="decimal">
+          <select id="areaUnit"></select>
+        </div>
+        <p class="field-hint">Results below are given per hectare and for this exact area.</p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Recommended dose (N – P₂O₅ – K₂O, kg per hectare)</label>
+        <div class="npk-inline">
+          <div>
+            <label for="rateN">Nitrogen (N)</label>
+            <input type="number" id="rateN" min="0" step="any">
+          </div>
+          <div>
+            <label for="rateP">Phosphorus (P₂O₅)</label>
+            <input type="number" id="rateP" min="0" step="any">
+          </div>
+          <div>
+            <label for="rateK">Potassium (K₂O)</label>
+            <input type="number" id="rateK" min="0" step="any">
+          </div>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="customRate">
+          <label for="customRate">Use my own rate instead of the standard dose</label>
+        </div>
+        <p class="field-hint">These are general standard doses used across Nepal. Actual need shifts with your agro-ecological zone (Terai, hill or mountain), variety and soil test — your local Krishi Gyan Kendra can fine-tune this.</p>
+      </div>
+
+      <div class="field-group">
+        <fieldset>
+          <legend>Phosphorus source</legend>
+          <div class="source-options">
+            <label><input type="radio" name="pSource" value="dap" checked> DAP (18-46-0)</label>
+            <label><input type="radio" name="pSource" value="ssp"> Single Super Phosphate, SSP (0-16-0)</label>
+          </div>
+          <p class="field-hint">DAP also contributes some nitrogen, which is subtracted from the urea you need. SSP contributes none.</p>
+        </fieldset>
+      </div>
+
+      <button type="button" class="calc-btn" id="calcBtn">Calculate fertilizer</button>
+
+    </div>
+
+    <!-- RESULTS -->
+    <div class="panel results-panel">
+      <h2 class="results-heading">Fertilizer to apply</h2>
+      <p class="results-sub" id="areaSummary">Fill in the form and press "Calculate fertilizer".</p>
+
+      <div id="fertList">
+        <p class="placeholder-msg">Your fertilizer schedule — grouped by when to apply it — will appear here.</p>
+      </div>
+
+      <div class="total-line" id="totalLine" style="display:none;">
+        <span>Total straight fertilizer</span>
+        <span id="totalKg">— kg</span>
+      </div>
+
+      <div class="warn-box" id="warnBox" style="display:none;"></div>
+
+      <div class="apply-tip" id="applyTip" style="display:none;">
+        <strong>Why split it:</strong> phosphorus and potash are applied fully as basal because they don't move or leach much in the soil. Nitrogen is split because urea applied all at once is easily lost to leaching and volatilisation — giving it in stages, timed to when the crop is actually taking up nitrogen, means more of it ends up in the plant instead of the air or groundwater.
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Standard doses shown here are general reference figures compiled from Nepal's agricultural extension guidance and published agronomy trials, meant as a starting point — not a substitute for a soil test or advice from your local agriculture office. Fertilizer composition used: urea 46% N, DAP 18% N + 46% P₂O₅, SSP 16% P₂O₅, muriate of potash (MOP) 60% K₂O.</p>
+    <p>Area conversions: 1 hectare = 10,000 m² = 1.4766 bigha = 19.66 ropani. 1 bigha = 20 kattha = 6,772.63 m². 1 ropani = 16 aana = 508.72 m².</p>
+  </div>
+</footer>
+
+<script>
+// ---------- Data ----------
+// splits: how the total N dose is timed. pct values sum to 1.
+const S = {
+  rice: [
+    {stage:'Basal — at final puddling / transplanting', pct:0.5},
+    {stage:'Active tillering (20–25 days after transplanting)', pct:0.25},
+    {stage:'Panicle initiation (40–45 days after transplanting)', pct:0.25}
+  ],
+  maize3: [
+    {stage:'Basal — at sowing', pct:0.33},
+    {stage:'Knee-high stage (25–30 days after sowing)', pct:0.33},
+    {stage:'Tasseling stage (50–55 days after sowing)', pct:0.34}
+  ],
+  cereal2: [
+    {stage:'Basal — at sowing', pct:0.5},
+    {stage:'Active tillering (25–30 days after sowing)', pct:0.5}
+  ],
+  wheat: [
+    {stage:'Basal — at sowing', pct:0.33},
+    {stage:'Crown root initiation / first irrigation (20–25 days after sowing)', pct:0.33},
+    {stage:'Jointing stage / second irrigation (45–50 days after sowing)', pct:0.34}
+  ],
+  singleBasal: [
+    {stage:'Basal — at sowing', pct:1}
+  ],
+  sugarcane: [
+    {stage:'Basal — at planting', pct:0.34},
+    {stage:'Tillering stage (45 days after planting)', pct:0.33},
+    {stage:'Grand growth stage (90 days after planting)', pct:0.33}
+  ],
+  potato: [
+    {stage:'Basal — at planting', pct:0.5},
+    {stage:'Earthing up (30–35 days after planting)', pct:0.5}
+  ],
+  veg2: [
+    {stage:'Basal — at transplanting / sowing', pct:0.5},
+    {stage:'Top dressing (3–4 weeks after transplanting / sowing)', pct:0.5}
+  ],
+  quickVeg2: [
+    {stage:'Basal — at sowing', pct:0.7},
+    {stage:'Top dressing (15–20 days after sowing)', pct:0.3}
+  ]
+};
+
+const CROPS = [
+  {id:'rice_improved', name:'Rice — improved / hybrid variety', n:100, p:30, k:30, splits:S.rice, note:'For hybrid or improved paddy varieties under normal irrigation.'},
+  {id:'rice_local', name:'Rice — local variety', n:40, p:20, k:20, splits:S.rice, note:'Local landraces respond to far less nitrogen than improved varieties.'},
+  {id:'maize_hybrid', name:'Maize — hybrid', n:120, p:60, k:40, splits:S.maize3, note:'Maize is a heavy nitrogen feeder — split it across three stages.'},
+  {id:'maize_local', name:'Maize — local variety', n:60, p:30, k:20, splits:S.cereal2},
+  {id:'wheat', name:'Wheat', n:120, p:50, k:50, splits:S.wheat},
+  {id:'millet', name:'Finger millet (kodo)', n:40, p:20, k:20, splits:S.cereal2},
+  {id:'barley', name:'Barley', n:60, p:30, k:20, splits:S.cereal2},
+  {id:'mustard', name:'Mustard / rapeseed', n:60, p:40, k:20, splits:S.singleBasal, note:'Modest nitrogen need — apply it all at sowing.'},
+  {id:'soybean', name:'Soybean', n:20, p:60, k:40, splits:S.singleBasal, note:'Being a legume, soybean fixes its own nitrogen — only a small starter dose is needed, applied at sowing.'},
+  {id:'groundnut', name:'Groundnut', n:20, p:40, k:40, splits:S.singleBasal, note:'Legume — low nitrogen requirement, applied at sowing.'},
+  {id:'lentil', name:'Lentil (masuro)', n:20, p:40, k:20, splits:S.singleBasal, note:'Legume — low nitrogen requirement, applied at sowing.'},
+  {id:'blackgram', name:'Black gram (maas)', n:20, p:40, k:20, splits:S.singleBasal, note:'Legume — low nitrogen requirement, applied at sowing.'},
+  {id:'sugarcane', name:'Sugarcane', n:150, p:60, k:60, splits:S.sugarcane},
+  {id:'potato', name:'Potato', n:120, p:80, k:100, splits:S.potato, note:'Potato is a heavy feeder, especially of potassium; range widely reported as 90–220 kg N/ha depending on variety and altitude.'},
+  {id:'tomato', name:'Tomato', n:120, p:80, k:60, splits:S.veg2},
+  {id:'cauliflower', name:'Cauliflower', n:120, p:60, k:40, splits:S.veg2},
+  {id:'cabbage', name:'Cabbage', n:120, p:60, k:40, splits:S.veg2},
+  {id:'onion', name:'Onion', n:100, p:50, k:50, splits:S.veg2},
+  {id:'garlic', name:'Garlic', n:100, p:50, k:50, splits:S.veg2},
+  {id:'brinjal', name:'Brinjal (eggplant / baigan)', n:100, p:60, k:60, splits:S.veg2},
+  {id:'okra', name:'Okra (bhindi)', n:100, p:50, k:50, splits:S.veg2},
+  {id:'cucumber', name:'Cucumber', n:100, p:60, k:60, splits:S.veg2},
+  {id:'chili', name:'Chili (khursani)', n:100, p:60, k:40, splits:S.veg2},
+  {id:'pumpkin', name:'Pumpkin / squash', n:80, p:40, k:40, splits:S.veg2},
+  {id:'radish', name:'Radish (mula)', n:60, p:40, k:40, splits:S.quickVeg2, note:'Fast-maturing root crop — most nitrogen goes on early.'},
+  {id:'spinach', name:'Spinach / leafy greens (saag)', n:80, p:40, k:40, splits:S.quickVeg2, note:'Fast-maturing leafy crop — most nitrogen goes on early.'},
+  {id:'ginger', name:'Ginger', n:100, p:60, k:60, splits:S.veg2},
+  {id:'turmeric', name:'Turmeric (besar)', n:100, p:50, k:80, splits:S.veg2, note:'Turmeric needs comparatively more potassium than most vegetables.'},
+  {id:'custom', name:'Other crop — enter my own N-P-K', n:0, p:0, k:0, splits:S.veg2, note:'Type in the N, P₂O₅ and K₂O dose recommended for your crop. Nitrogen is split 50/50 between basal and a top dressing 3–4 weeks later — adjust in the field if the timing for your crop is different.'}
+];
+
+// area unit -> square metres
+const AREA_UNITS = [
+  {id:'ha', name:'Hectare', toM2:10000},
+  {id:'bigha', name:'Bigha (Terai)', toM2:6772.63},
+  {id:'kattha', name:'Kattha (Terai)', toM2:338.63},
+  {id:'dhur', name:'Dhur (Terai)', toM2:16.93},
+  {id:'ropani', name:'Ropani (Hill)', toM2:508.72},
+  {id:'aana', name:'Aana (Hill)', toM2:31.795},
+  {id:'paisa', name:'Paisa (Hill)', toM2:7.9488},
+  {id:'daam', name:'Daam (Hill)', toM2:1.9872},
+  {id:'m2', name:'Square metre', toM2:1}
+];
+
+const FERT = {
+  urea:{n:0.46},
+  dap:{n:0.18, p:0.46},
+  ssp:{p:0.16},
+  mop:{k:0.60}
+};
+
+// ---------- DOM ----------
+const cropSel = document.getElementById('crop');
+const cropNote = document.getElementById('cropNote');
+const areaValue = document.getElementById('areaValue');
+const areaUnitSel = document.getElementById('areaUnit');
+const rateN = document.getElementById('rateN');
+const rateP = document.getElementById('rateP');
+const rateK = document.getElementById('rateK');
+const customRateBox = document.getElementById('customRate');
+const areaSummary = document.getElementById('areaSummary');
+const fertList = document.getElementById('fertList');
+const totalKg = document.getElementById('totalKg');
+const warnBox = document.getElementById('warnBox');
+
+CROPS.forEach(c=>{
+  const opt = document.createElement('option');
+  opt.value = c.id; opt.textContent = c.name;
+  cropSel.appendChild(opt);
+});
+
+AREA_UNITS.forEach(u=>{
+  const opt = document.createElement('option');
+  opt.value = u.id; opt.textContent = u.name;
+  areaUnitSel.appendChild(opt);
+});
+
+function getCrop(){ return CROPS.find(c=>c.id===cropSel.value); }
+function getUnit(){ return AREA_UNITS.find(u=>u.id===areaUnitSel.value); }
+
+function applyCropDefaults(){
+  const c = getCrop();
+  rateN.value = c.n; rateP.value = c.p; rateK.value = c.k;
+  customRateBox.checked = false;
+  setRateInputsEnabled(false);
+  cropNote.textContent = c.note ? c.note : 'General standard dose for this crop across most of Nepal.';
+  cropNote.style.display = 'block';
+}
+
+function setRateInputsEnabled(enabled){
+  [rateN, rateP, rateK].forEach(el=>{
+    el.disabled = !enabled;
+    el.style.background = enabled ? '#fff' : '#F1ECDA';
+  });
+}
+
+function fmt(n, decimals){
+  if(!isFinite(n)) return '0';
+  const d = decimals === undefined ? 1 : decimals;
+  return n.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:d});
+}
+
+const calcBtn = document.getElementById('calcBtn');
+const totalLine = document.getElementById('totalLine');
+const applyTip = document.getElementById('applyTip');
+let hasCalculated = false;
+
+// splits total N target across stages, crediting the basal stage with
+// whatever nitrogen the phosphorus fertilizer (DAP) already supplies there.
+function splitNitrogen(N, nFromP, splits){
+  let creditLeft = nFromP;
+  return splits.map(s=>{
+    const need = N * s.pct;
+    const used = Math.min(need, creditLeft);
+    creditLeft -= used;
+    return { stage: s.stage, ureaN: Math.max(need - used, 0) };
+  });
+}
+
+function calculate(){
+  const c = getCrop();
+  const N = parseFloat(rateN.value) || 0;
+  const P = parseFloat(rateP.value) || 0;
+  const K = parseFloat(rateK.value) || 0;
+
+  const unit = getUnit();
+  const areaVal = parseFloat(areaValue.value) || 0;
+  const areaM2 = areaVal * unit.toM2;
+  const areaHa = areaM2 / 10000;
+
+  const pSource = document.querySelector('input[name="pSource"]:checked').value;
+
+  let dapKg=0, sspKg=0, nFromP=0;
+  if(pSource === 'dap'){
+    dapKg = P / FERT.dap.p;
+    nFromP = dapKg * FERT.dap.n;
+  } else {
+    sspKg = P / FERT.ssp.p;
+  }
+  const mopKg = K / FERT.mop.k;
+  const nExcess = nFromP > N ? (nFromP - N) : 0;
+
+  const stagePlan = splitNitrogen(N, nFromP, c.splits);
+
+  areaSummary.innerHTML = `Schedule for ${fmt(areaVal,2)} ${unit.name.split(' ')[0].toLowerCase()} (≈ ${fmt(areaHa,3)} ha)`;
+
+  fertList.innerHTML = '';
+  let total = 0;
+
+  stagePlan.forEach((stg, idx)=>{
+    const items = [];
+    if(idx===0){
+      if(pSource==='dap' && dapKg>0){
+        items.push({label:'DAP', detail:'18% N, 46% P₂O₅', perHa:dapKg, area:dapKg*areaHa});
+      } else if(pSource==='ssp' && sspKg>0){
+        items.push({label:'SSP', detail:'16% P₂O₅', perHa:sspKg, area:sspKg*areaHa});
+      }
+      if(mopKg>0){
+        items.push({label:'Muriate of potash (MOP)', detail:'60% K₂O', perHa:mopKg, area:mopKg*areaHa});
+      }
+    }
+    const ureaKgStage = stg.ureaN / FERT.urea.n;
+    if(ureaKgStage > 0.001){
+      items.push({label:'Urea', detail:'46% N', perHa:ureaKgStage, area:ureaKgStage*areaHa});
+    }
+    if(items.length===0) return;
+
+    items.forEach(it=> total += it.area);
+
+    const card = document.createElement('div');
+    card.className = 'stage-card';
+    const itemsHtml = items.map(it => `
+      <div class="stage-item">
+        <span>${it.label} <span style="color:#6B6B57; font-size:0.82rem;">— ${it.detail}</span></span>
+        <span class="amt">
+          <span class="big">${fmt(it.area)} kg</span>
+          <span class="detail">${fmt(it.perHa)} kg/ha · ≈${fmt(it.area/50,1)} bags (50 kg)</span>
+        </span>
+      </div>`).join('');
+    card.innerHTML = `<h3 class="stage-title">${stg.stage}</h3>${itemsHtml}`;
+    fertList.appendChild(card);
+  });
+
+  if(fertList.innerHTML === ''){
+    fertList.innerHTML = '<p class="placeholder-msg">Enter a nitrogen, phosphorus or potash target above zero to see a schedule.</p>';
+  }
+
+  totalKg.textContent = `${fmt(total)} kg`;
+  totalLine.style.display = 'flex';
+  applyTip.style.display = 'block';
+
+  if(nExcess > 0.5){
+    warnBox.style.display = 'block';
+    warnBox.textContent = `The phosphorus dose alone already supplies about ${fmt(nExcess)} kg/ha more nitrogen than the target — no urea is needed, and you may want to lower the P source or accept the extra nitrogen.`;
+  } else {
+    warnBox.style.display = 'none';
+  }
+
+  hasCalculated = true;
+}
+
+cropSel.addEventListener('change', applyCropDefaults);
+customRateBox.addEventListener('change', ()=>{
+  setRateInputsEnabled(customRateBox.checked);
+  if(!customRateBox.checked) applyCropDefaults();
+});
+calcBtn.addEventListener('click', calculate);
+
+// init: pre-fill sensible defaults, but wait for the button before showing results
+cropSel.value = 'rice_improved';
+areaUnitSel.value = 'ha';
+applyCropDefaults();
+</script>
+
+</body>
+</html>
