@@ -426,8 +426,9 @@
           <div class="source-options">
             <label><input type="radio" name="pSource" value="dap" checked> DAP (18-46-0)</label>
             <label><input type="radio" name="pSource" value="ssp"> Single Super Phosphate, SSP (0-16-0)</label>
+            <label><input type="radio" name="pSource" value="tsp"> Triple Super Phosphate, TSP (0-46-0)</label>
           </div>
-          <p class="field-hint">DAP also contributes some nitrogen, which is subtracted from the urea you need. SSP contributes none.</p>
+          <p class="field-hint">DAP also contributes some nitrogen, which is subtracted from the urea you need. SSP and TSP contribute none.</p>
         </fieldset>
       </div>
 
@@ -461,8 +462,9 @@
 
 <footer>
   <div class="wrap">
-    <p>Standard doses shown here are general reference figures compiled from Nepal's agricultural extension guidance and published agronomy trials, meant as a starting point — not a substitute for a soil test or advice from your local agriculture office. Fertilizer composition used: urea 46% N, DAP 18% N + 46% P₂O₅, SSP 16% P₂O₅, muriate of potash (MOP) 60% K₂O.</p>
+    <p>Standard doses shown here are general reference figures compiled from Nepal's agricultural extension guidance and published agronomy trials, meant as a starting point — not a substitute for a soil test or advice from your local agriculture office. Fertilizer composition used: urea 46% N, DAP 18% N + 46% P₂O₅, SSP 16% P₂O₅, TSP 46% P₂O₅, muriate of potash (MOP) 60% K₂O.</p>
     <p>Area conversions: 1 hectare = 10,000 m² = 1.4766 bigha = 19.66 ropani. 1 bigha = 20 kattha = 6,772.63 m². 1 ropani = 16 aana = 508.72 m².</p>
+    <p style="margin-top:16px; padding-top:16px; border-top:1px solid var(--line); color:#4C5A46;">Made by <strong>Bishnu Thakur</strong>, CNRM Sindhuli, AFU, Nepal. Contact: 9816207263</p>
   </div>
 </footer>
 
@@ -560,6 +562,7 @@ const FERT = {
   urea:{n:0.46},
   dap:{n:0.18, p:0.46},
   ssp:{p:0.16},
+  tsp:{p:0.46},
   mop:{k:0.60}
 };
 
@@ -644,12 +647,14 @@ function calculate(){
 
   const pSource = document.querySelector('input[name="pSource"]:checked').value;
 
-  let dapKg=0, sspKg=0, nFromP=0;
+  let dapKg=0, sspKg=0, tspKg=0, nFromP=0;
   if(pSource === 'dap'){
     dapKg = P / FERT.dap.p;
     nFromP = dapKg * FERT.dap.n;
-  } else {
+  } else if(pSource === 'ssp'){
     sspKg = P / FERT.ssp.p;
+  } else if(pSource === 'tsp'){
+    tspKg = P / FERT.tsp.p;
   }
   const mopKg = K / FERT.mop.k;
   const nExcess = nFromP > N ? (nFromP - N) : 0;
@@ -668,6 +673,8 @@ function calculate(){
         items.push({label:'DAP', detail:'18% N, 46% P₂O₅', perHa:dapKg, area:dapKg*areaHa});
       } else if(pSource==='ssp' && sspKg>0){
         items.push({label:'SSP', detail:'16% P₂O₅', perHa:sspKg, area:sspKg*areaHa});
+      } else if(pSource==='tsp' && tspKg>0){
+        items.push({label:'TSP', detail:'46% P₂O₅', perHa:tspKg, area:tspKg*areaHa});
       }
       if(mopKg>0){
         items.push({label:'Muriate of potash (MOP)', detail:'60% K₂O', perHa:mopKg, area:mopKg*areaHa});
